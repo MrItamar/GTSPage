@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Guess The Song - Support</title>
+  <style>
+    body{font-family:system-ui,Arial;margin:40px;max-width:850px;line-height:1.5}
+    h1{margin-bottom:8px}
+    .box{padding:16px;border:1px solid #ddd;border-radius:12px}
+  </style>
+</head>
+<body>
+  <h1>Guess The Song (GTS) — Support</h1>
+  <div class="box">
+    <p>If you need help, contact:</p>
+    <p><b>Email:</b> your-email@example.com</p>
+    <p><b>FAQ:</b> Add common issues here (login, audio, multiplayer, etc.)</p>
+  </div>
+</body>
+</html>
