@@ -1,72 +1,128 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Guess The Song - Support</title>
-    <style>
-        body {
-            font-family: system-ui, Arial;
-            margin: 40px;
-            max-width: 850px;
-            line-height: 1.5;
-        }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Guess The Song – Support</title>
 
-        h1 {
-            margin-bottom: 8px;
-        }
+  <style>
+    body {
+      font-family: system-ui, Arial, sans-serif;
+      margin: 40px auto;
+      max-width: 850px;
+      line-height: 1.5;
+      color: #111;
+    }
 
-        .box {
-            padding: 16px;
-            border: 1px solid #ddd;
-            border-radius: 12px;
-        }
+    h1 {
+      margin-bottom: 6px;
+    }
 
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-top: 16px;
-        }
+    .subtitle {
+      color: #555;
+      margin-bottom: 20px;
+    }
 
-        input, textarea {
-            padding: 10px;
-            font-size: 16px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-        }
+    .box {
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 14px;
+    }
 
-        button {
-            padding: 12px;
-            font-size: 16px;
-            border-radius: 10px;
-            border: none;
-            cursor: pointer;
-            background: #000;
-            color: #fff;
-        }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 16px;
+    }
 
-            button:hover {
-                opacity: 0.85;
-            }
-    </style>
+    input,
+    textarea {
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-family: inherit;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    button {
+      margin-top: 8px;
+      padding: 14px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      background: #000;
+      color: #fff;
+    }
+
+    button:hover {
+      opacity: 0.85;
+    }
+
+    .note {
+      margin-top: 14px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    footer {
+      margin-top: 40px;
+      font-size: 13px;
+      color: #777;
+    }
+  </style>
 </head>
+
 <body>
-    <h1>GTS (Guess The Song) Support</h1>
+  <h1>GTS (Guess The Song) – Support</h1>
+  <div class="subtitle">
+    Need help with the app? Send us a message and we’ll get back to you.
+  </div>
 
-    <div class="box">
-        <p>Need help? Send us a message:</p>
+  <div class="box">
+    <form onsubmit="return openMail();">
+      <input id="name" type="text" placeholder="Your name" required />
+      <input id="email" type="email" placeholder="Your email" required />
+      <input id="device" type="text" placeholder="Device (iPhone / Android / PC)" />
+      <textarea id="message" placeholder="Describe your issue..." required></textarea>
+      <button type="submit">Send Support Request</button>
+    </form>
 
-        <form action="itamarmarili97@gmail.com" method="post" enctype="text/plain">
-            <input type="text" name="Name" placeholder="Your name" required />
-            <input type="email" name="Email" placeholder="Your email" required />
-            <textarea name="Message" rows="5" placeholder="Describe your issue..." required></textarea>
-            <button type="submit">Send Support Request</button>
-        </form>
-
-        <p style="margin-top:12px;font-size:14px;color:#666">
-            Submitting will open your email app with the message pre-filled.
-        </p>
+    <div class="note">
+      Submitting will open your email app with the message pre-filled.
     </div>
+  </div>
+
+  <footer>
+    © Guess The Song (GTS)
+  </footer>
+
+  <script>
+    function openMail() {
+      const to = "itamarmarili97@gmail.com";
+
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const device = document.getElementById("device").value.trim();
+      const message = document.getElementById("message").value.trim();
+
+      const subject = encodeURIComponent("GTS Support Request");
+      const body = encodeURIComponent(
+        `Name: ${name}\n` +
+        `Email: ${email}\n` +
+        `Device: ${device}\n\n` +
+        `Message:\n${message}`
+      );
+
+      window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
+      return false; // prevent POST (avoids 405)
+    }
+  </script>
 </body>
 </html>
