@@ -3,125 +3,274 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Guess The Song – Support</title>
-
+  <title>GTS – Support</title>
   <style>
-    body {
-      font-family: system-ui, Arial, sans-serif;
-      margin: 40px auto;
-      max-width: 850px;
-      line-height: 1.5;
-      color: #111;
-    }
-
-    h1 {
-      margin-bottom: 6px;
-    }
-
-    .subtitle {
-      color: #555;
-      margin-bottom: 20px;
-    }
-
-    .box {
-      padding: 20px;
-      border: 1px solid #ddd;
-      border-radius: 14px;
-    }
-
-    textarea {
-      width: 100%;
-      padding: 12px;
-      font-size: 16px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-family: inherit;
-      resize: vertical;
-      min-height: 140px;
-    }
-
-    button {
-      margin-top: 12px;
-      padding: 14px;
-      font-size: 16px;
-      border-radius: 10px;
-      border: none;
-      cursor: pointer;
-      background: #000;
-      color: #fff;
-    }
-
-    button:hover {
-      opacity: 0.85;
-    }
-
-    pre {
-      margin-top: 20px;
-      padding: 14px;
-      background: #f7f7f7;
-      border-radius: 10px;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-
-    .note {
-      margin-top: 14px;
-      font-size: 14px;
-      color: #666;
-    }
+    body{font-family:system-ui,Arial,sans-serif;margin:40px auto;max-width:900px;line-height:1.5;color:#111}
+    h1{margin:0 0 6px}
+    .sub{color:#555;margin:0 0 20px}
+    .card{padding:18px;border:1px solid #ddd;border-radius:14px;background:#fff}
+    textarea,input{width:100%;padding:12px;font-size:16px;border-radius:10px;border:1px solid #ccc;font-family:inherit}
+    textarea{min-height:120px;resize:vertical}
+    .row{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap}
+    button{padding:12px 14px;font-size:15px;border-radius:10px;border:none;cursor:pointer;background:#000;color:#fff}
+    button:disabled{opacity:.5;cursor:not-allowed}
+    .note{margin-top:10px;font-size:13px;color:#666}
+    .err{margin-top:10px;color:#b00020}
+    .list{margin-top:22px}
+    .item{margin-top:14px;padding:14px;border:1px solid #eee;border-radius:14px;background:#fafafa}
+    .meta{font-size:12px;color:#777;margin-top:6px}
+    .actions{margin-top:10px;display:flex;gap:10px;flex-wrap:wrap}
+    .linkbtn{background:#fff;color:#000;border:1px solid #000}
+    .replyBox{margin-top:12px;padding:12px;border:1px dashed #ccc;border-radius:12px;background:#fff}
+    .replies{margin-top:12px;margin-left:18px;border-left:2px solid #e5e5e5;padding-left:12px}
+    .replyItem{margin-top:10px;padding:12px;border:1px solid #eee;border-radius:12px;background:#fff}
+    .small{font-size:13px;color:#666}
   </style>
 </head>
-
 <body>
   <h1>GTS (Guess The Song) – Support</h1>
-  <div class="subtitle">
-    Leave a comment or describe an issue below.
-  </div>
+  <p class="sub">Leave a public comment. Everyone can see it. Don’t share personal info.</p>
 
-  <div class="box">
-    <textarea id="comment" placeholder="Write your comment here…"></textarea>
-    <button onclick="saveComment()">Save Comment</button>
-
-    <pre id="output"></pre>
-
-    <div class="note">
-      Comment is saved locally in your browser.  
-      No data is sent or collected.
+  <div class="card">
+    <textarea id="newMsg" maxlength="800" placeholder="Write your comment…"></textarea>
+    <div class="row">
+      <button id="postBtn">Post Comment</button>
+      <span class="small">Max 800 chars</span>
     </div>
+    <div id="error" class="err"></div>
+    <div class="note">This page stores comments in Firebase Firestore.</div>
   </div>
 
-  <script>
-    const STORAGE_KEY = "gts_support_comment";
+  <div class="list" id="list"></div>
 
-    function escapeHTML(str) {
-      return str
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
+  <!-- Firebase (modular SDK) -->
+  <script type="module">
+    const firebaseConfig = { apiKey: "AIzaSyBd5mcV_MdjLwqOpzLVyxEkufJ3Ai9Rvjo", authDomain: "guessthesong-661c1.firebaseapp.com", projectId: "guessthesong-661c1", storageBucket: "guessthesong-661c1.firebasestorage.app", messagingSenderId: "874877173200", appId: "1:874877173200:web:1680e1ff85873a9c468dd5", measurementId: "G-CXP7KDDDSC" };
 
-    function saveComment() {
-      const input = document.getElementById("comment").value;
-      const safeText = escapeHTML(input);
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      query,
+      orderBy,
+      limit,
+      onSnapshot
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-      localStorage.setItem(STORAGE_KEY, safeText);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const commentsCol = collection(db, "comments");
 
-      const output = document.getElementById("output");
-      output.textContent = safeText;
-    }
+    const listEl = document.getElementById("list");
+    const msgEl = document.getElementById("newMsg");
+    const errEl = document.getElementById("error");
+    const postBtn = document.getElementById("postBtn");
 
-    function loadComment() {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        document.getElementById("comment").value = saved;
-        document.getElementById("output").textContent = saved;
+    // ---------- XSS SAFE RENDERING ----------
+    // We NEVER use innerHTML with user input. Only textContent.
+
+    function fmtTime(ts) {
+      try {
+        // Firestore timestamp may come as {seconds, nanoseconds} when read
+        if (ts && typeof ts.seconds === "number") {
+          return new Date(ts.seconds * 1000).toLocaleString();
+        }
+        // Or a Date (if you used Date objects)
+        return new Date(ts).toLocaleString();
+      } catch {
+        return "";
       }
     }
 
-    // Load saved comment on page open
-    loadComment();
+    function makeTextDiv(text) {
+      const d = document.createElement("div");
+      d.textContent = text ?? ""; // XSS-safe
+      return d;
+    }
+
+    function makeMetaDiv(createdAt) {
+      const d = document.createElement("div");
+      d.className = "meta";
+      d.textContent = fmtTime(createdAt);
+      return d;
+    }
+
+    function buildReplyBox(parentId, onClose) {
+      const box = document.createElement("div");
+      box.className = "replyBox";
+
+      const ta = document.createElement("textarea");
+      ta.maxLength = 800;
+      ta.placeholder = "Write a reply…";
+      ta.style.minHeight = "90px";
+
+      const row = document.createElement("div");
+      row.className = "row";
+
+      const send = document.createElement("button");
+      send.textContent = "Post Reply";
+
+      const cancel = document.createElement("button");
+      cancel.textContent = "Cancel";
+      cancel.className = "linkbtn";
+      cancel.type = "button";
+
+      const localErr = document.createElement("div");
+      localErr.className = "err";
+
+      send.addEventListener("click", async () => {
+        localErr.textContent = "";
+        const message = ta.value.trim();
+        if (!message) { localErr.textContent = "Please write a reply."; return; }
+        if (message.length > 800) { localErr.textContent = "Reply too long."; return; }
+
+        send.disabled = true;
+        try {
+          await addDoc(commentsCol, {
+            message,
+            createdAt: new Date(),
+            parentId
+          });
+          ta.value = "";
+          onClose();
+        } catch (e) {
+          localErr.textContent = "Failed to post reply.";
+        } finally {
+          send.disabled = false;
+        }
+      });
+
+      cancel.addEventListener("click", () => onClose());
+
+      row.appendChild(send);
+      row.appendChild(cancel);
+
+      box.appendChild(ta);
+      box.appendChild(row);
+      box.appendChild(localErr);
+
+      return box;
+    }
+
+    function renderThread(roots, repliesByParent) {
+      listEl.textContent = ""; // clear
+
+      for (const c of roots) {
+        const item = document.createElement("div");
+        item.className = "item";
+
+        item.appendChild(makeTextDiv(c.message));
+        item.appendChild(makeMetaDiv(c.createdAt));
+
+        const actions = document.createElement("div");
+        actions.className = "actions";
+
+        const replyBtn = document.createElement("button");
+        replyBtn.className = "linkbtn";
+        replyBtn.textContent = "Reply";
+
+        actions.appendChild(replyBtn);
+        item.appendChild(actions);
+
+        let openBox = null;
+
+        replyBtn.addEventListener("click", () => {
+          // toggle reply box
+          if (openBox) {
+            openBox.remove();
+            openBox = null;
+            replyBtn.textContent = "Reply";
+            return;
+          }
+          replyBtn.textContent = "Close Reply";
+          openBox = buildReplyBox(c.id, () => {
+            if (openBox) openBox.remove();
+            openBox = null;
+            replyBtn.textContent = "Reply";
+          });
+          item.appendChild(openBox);
+        });
+
+        const replies = repliesByParent.get(c.id) || [];
+        if (replies.length) {
+          const repliesWrap = document.createElement("div");
+          repliesWrap.className = "replies";
+
+          for (const r of replies) {
+            const rItem = document.createElement("div");
+            rItem.className = "replyItem";
+            rItem.appendChild(makeTextDiv(r.message));
+            rItem.appendChild(makeMetaDiv(r.createdAt));
+            repliesWrap.appendChild(rItem);
+          }
+
+          item.appendChild(repliesWrap);
+        }
+
+        listEl.appendChild(item);
+      }
+    }
+
+    async function postRootComment() {
+      errEl.textContent = "";
+      const message = msgEl.value.trim();
+      if (!message) { errEl.textContent = "Please write a comment."; return; }
+      if (message.length > 800) { errEl.textContent = "Comment too long."; return; }
+
+      postBtn.disabled = true;
+      try {
+        await addDoc(commentsCol, {
+          message,
+          createdAt: new Date(),
+          parentId: null
+        });
+        msgEl.value = "";
+      } catch (e) {
+        errEl.textContent = "Failed to post. Check your Firebase config / rules.";
+      } finally {
+        postBtn.disabled = false;
+      }
+    }
+
+    postBtn.addEventListener("click", postRootComment);
+
+    // Live updates: pull latest N docs and build threads client-side.
+    // Increase limit if you want more history.
+    const q = query(commentsCol, orderBy("createdAt", "desc"), limit(60));
+
+    onSnapshot(q, (snap) => {
+      const all = [];
+      snap.forEach(doc => {
+        const d = doc.data();
+        all.push({
+          id: doc.id,
+          message: d.message,
+          createdAt: d.createdAt,
+          parentId: d.parentId ?? null
+        });
+      });
+
+      // separate roots + replies
+      const roots = [];
+      const repliesByParent = new Map();
+
+      for (const c of all) {
+        if (!c.parentId) roots.push(c);
+        else {
+          if (!repliesByParent.has(c.parentId)) repliesByParent.set(c.parentId, []);
+          repliesByParent.get(c.parentId).push(c);
+        }
+      }
+
+      // sort roots oldest->newest (nicer reading) + replies oldest->newest
+      roots.sort((a,b) => (a.createdAt?.seconds ?? 0) - (b.createdAt?.seconds ?? 0));
+      for (const [k, arr] of repliesByParent.entries()) {
+        arr.sort((a,b) => (a.createdAt?.seconds ?? 0) - (b.createdAt?.seconds ?? 0));
+      }
+
+      renderThread(roots, repliesByParent);
+    });
   </script>
 </body>
 </html>
