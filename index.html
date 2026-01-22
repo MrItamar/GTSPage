@@ -80,17 +80,19 @@
 
   <div class="box">
     <textarea id="comment" placeholder="Write your comment here…"></textarea>
-    <button onclick="submitComment()">Submit</button>
+    <button onclick="saveComment()">Save Comment</button>
 
     <pre id="output"></pre>
 
     <div class="note">
-      This form does not send data or store it.  
-      All input is displayed as plain text only.
+      Comment is saved locally in your browser.  
+      No data is sent or collected.
     </div>
   </div>
 
   <script>
+    const STORAGE_KEY = "gts_support_comment";
+
     function escapeHTML(str) {
       return str
         .replace(/&/g, "&amp;")
@@ -100,14 +102,26 @@
         .replace(/'/g, "&#039;");
     }
 
-    function submitComment() {
+    function saveComment() {
       const input = document.getElementById("comment").value;
       const safeText = escapeHTML(input);
 
-      // textContent ensures NO HTML execution (XSS-safe)
+      localStorage.setItem(STORAGE_KEY, safeText);
+
       const output = document.getElementById("output");
       output.textContent = safeText;
     }
+
+    function loadComment() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        document.getElementById("comment").value = saved;
+        document.getElementById("output").textContent = saved;
+      }
+    }
+
+    // Load saved comment on page open
+    loadComment();
   </script>
 </body>
 </html>
