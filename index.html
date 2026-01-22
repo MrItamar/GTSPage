@@ -29,29 +29,19 @@
       border-radius: 14px;
     }
 
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-top: 16px;
-    }
-
-    input,
     textarea {
+      width: 100%;
       padding: 12px;
       font-size: 16px;
       border-radius: 8px;
       border: 1px solid #ccc;
       font-family: inherit;
-    }
-
-    textarea {
       resize: vertical;
-      min-height: 120px;
+      min-height: 140px;
     }
 
     button {
-      margin-top: 8px;
+      margin-top: 12px;
       padding: 14px;
       font-size: 16px;
       border-radius: 10px;
@@ -65,16 +55,19 @@
       opacity: 0.85;
     }
 
+    pre {
+      margin-top: 20px;
+      padding: 14px;
+      background: #f7f7f7;
+      border-radius: 10px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
     .note {
       margin-top: 14px;
       font-size: 14px;
       color: #666;
-    }
-
-    footer {
-      margin-top: 40px;
-      font-size: 13px;
-      color: #777;
     }
   </style>
 </head>
@@ -82,46 +75,38 @@
 <body>
   <h1>GTS (Guess The Song) – Support</h1>
   <div class="subtitle">
-    Need help with the app? Send us a message and we’ll get back to you.
+    Leave a comment or describe an issue below.
   </div>
 
   <div class="box">
-    <form onsubmit="return openMail();">
-      <input id="name" type="text" placeholder="Your name" required />
-      <input id="email" type="email" placeholder="Your email" required />
-      <input id="device" type="text" placeholder="Device (iPhone / Android / PC)" />
-      <textarea id="message" placeholder="Describe your issue..." required></textarea>
-      <button type="submit">Send Support Request</button>
-    </form>
+    <textarea id="comment" placeholder="Write your comment here…"></textarea>
+    <button onclick="submitComment()">Submit</button>
+
+    <pre id="output"></pre>
 
     <div class="note">
-      Submitting will open your email app with the message pre-filled.
+      This form does not send data or store it.  
+      All input is displayed as plain text only.
     </div>
   </div>
 
-  <footer>
-    © Guess The Song (GTS)
-  </footer>
-
   <script>
-    function openMail() {
-      const to = "itamarmarili97@gmail.com";
+    function escapeHTML(str) {
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
 
-      const name = document.getElementById("name").value.trim();
-      const email = document.getElementById("email").value.trim();
-      const device = document.getElementById("device").value.trim();
-      const message = document.getElementById("message").value.trim();
+    function submitComment() {
+      const input = document.getElementById("comment").value;
+      const safeText = escapeHTML(input);
 
-      const subject = encodeURIComponent("GTS Support Request");
-      const body = encodeURIComponent(
-        `Name: ${name}\n` +
-        `Email: ${email}\n` +
-        `Device: ${device}\n\n` +
-        `Message:\n${message}`
-      );
-
-      window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
-      return false; // prevent POST (avoids 405)
+      // textContent ensures NO HTML execution (XSS-safe)
+      const output = document.getElementById("output");
+      output.textContent = safeText;
     }
   </script>
 </body>
