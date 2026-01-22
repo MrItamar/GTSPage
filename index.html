@@ -3,274 +3,142 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>GTS – Support</title>
+  <title>Guess The Song – Privacy Policy</title>
+
   <style>
-    body{font-family:system-ui,Arial,sans-serif;margin:40px auto;max-width:900px;line-height:1.5;color:#111}
-    h1{margin:0 0 6px}
-    .sub{color:#555;margin:0 0 20px}
-    .card{padding:18px;border:1px solid #ddd;border-radius:14px;background:#fff}
-    textarea,input{width:100%;padding:12px;font-size:16px;border-radius:10px;border:1px solid #ccc;font-family:inherit}
-    textarea{min-height:120px;resize:vertical}
-    .row{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap}
-    button{padding:12px 14px;font-size:15px;border-radius:10px;border:none;cursor:pointer;background:#000;color:#fff}
-    button:disabled{opacity:.5;cursor:not-allowed}
-    .note{margin-top:10px;font-size:13px;color:#666}
-    .err{margin-top:10px;color:#b00020}
-    .list{margin-top:22px}
-    .item{margin-top:14px;padding:14px;border:1px solid #eee;border-radius:14px;background:#fafafa}
-    .meta{font-size:12px;color:#777;margin-top:6px}
-    .actions{margin-top:10px;display:flex;gap:10px;flex-wrap:wrap}
-    .linkbtn{background:#fff;color:#000;border:1px solid #000}
-    .replyBox{margin-top:12px;padding:12px;border:1px dashed #ccc;border-radius:12px;background:#fff}
-    .replies{margin-top:12px;margin-left:18px;border-left:2px solid #e5e5e5;padding-left:12px}
-    .replyItem{margin-top:10px;padding:12px;border:1px solid #eee;border-radius:12px;background:#fff}
-    .small{font-size:13px;color:#666}
+    body {
+      font-family: system-ui, Arial, sans-serif;
+      margin: 40px auto;
+      max-width: 900px;
+      line-height: 1.6;
+      color: #111;
+    }
+    h1 { margin-bottom: 10px; }
+    h2 { margin-top: 28px; }
+    p { margin-top: 10px; }
+    ul { margin-top: 10px; padding-left: 20px; }
+    .box {
+      margin-top: 20px;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 14px;
+      background: #fafafa;
+    }
+    .small {
+      font-size: 14px;
+      color: #555;
+    }
   </style>
 </head>
+
 <body>
-  <h1>GTS (Guess The Song) – Support</h1>
-  <p class="sub">Leave a public comment. Everyone can see it. Don’t share personal info.</p>
 
-  <div class="card">
-    <textarea id="newMsg" maxlength="800" placeholder="Write your comment…"></textarea>
-    <div class="row">
-      <button id="postBtn">Post Comment</button>
-      <span class="small">Max 800 chars</span>
-    </div>
-    <div id="error" class="err"></div>
-    <div class="note">This page stores comments in Firebase Firestore.</div>
-  </div>
+<h1>Privacy Policy</h1>
+<p class="small">Last updated: January 2026</p>
 
-  <div class="list" id="list"></div>
+<div class="box">
+  <p>
+    <strong>Guess The Song (GTS)</strong> is a music-based quiz game designed for entertainment.
+    Your privacy is important to us, and this Privacy Policy explains how information is handled
+    when you use the game and its related support services.
+  </p>
+</div>
 
-  <!-- Firebase (modular SDK) -->
-  <script type="module">
-    const firebaseConfig = { apiKey: "AIzaSyBd5mcV_MdjLwqOpzLVyxEkufJ3Ai9Rvjo", authDomain: "guessthesong-661c1.firebaseapp.com", projectId: "guessthesong-661c1", storageBucket: "guessthesong-661c1.firebasestorage.app", messagingSenderId: "874877173200", appId: "1:874877173200:web:1680e1ff85873a9c468dd5", measurementId: "G-CXP7KDDDSC" };
+<h2>Overview</h2>
+<p>
+  Guess The Song does not require user accounts and does not ask for personal identification
+  in order to play. Most of the game can be used without providing any personal information.
+</p>
 
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import {
-      getFirestore,
-      collection,
-      addDoc,
-      query,
-      orderBy,
-      limit,
-      onSnapshot
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+<h2>Information We Collect</h2>
+<p>
+  The game itself does <strong>not</strong> collect personal data such as:
+</p>
+<ul>
+  <li>Name</li>
+  <li>Email address</li>
+  <li>Phone number</li>
+  <li>Physical location</li>
+  <li>Contacts or photos</li>
+</ul>
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const commentsCol = collection(db, "comments");
+<p>
+  If you choose to interact with the public support page linked from the app, the following
+  information may be collected:
+</p>
 
-    const listEl = document.getElementById("list");
-    const msgEl = document.getElementById("newMsg");
-    const errEl = document.getElementById("error");
-    const postBtn = document.getElementById("postBtn");
+<ul>
+  <li>The text content of comments or replies you submit</li>
+  <li>The date and time the comment was posted</li>
+</ul>
 
-    // ---------- XSS SAFE RENDERING ----------
-    // We NEVER use innerHTML with user input. Only textContent.
+<p>
+  Support comments are public and visible to other users.
+  Please do not include personal, sensitive, or identifying information in comments.
+</p>
 
-    function fmtTime(ts) {
-      try {
-        // Firestore timestamp may come as {seconds, nanoseconds} when read
-        if (ts && typeof ts.seconds === "number") {
-          return new Date(ts.seconds * 1000).toLocaleString();
-        }
-        // Or a Date (if you used Date objects)
-        return new Date(ts).toLocaleString();
-      } catch {
-        return "";
-      }
-    }
+<h2>How Information Is Used</h2>
+<p>
+  Information collected through the support page is used only for:
+</p>
 
-    function makeTextDiv(text) {
-      const d = document.createElement("div");
-      d.textContent = text ?? ""; // XSS-safe
-      return d;
-    }
+<ul>
+  <li>Displaying public support discussions</li>
+  <li>Responding to issues or feedback related to the game</li>
+  <li>Improving gameplay experience and stability</li>
+</ul>
 
-    function makeMetaDiv(createdAt) {
-      const d = document.createElement("div");
-      d.className = "meta";
-      d.textContent = fmtTime(createdAt);
-      return d;
-    }
+<p>
+  Guess The Song does not use collected information for advertising,
+  marketing, or user profiling.
+</p>
 
-    function buildReplyBox(parentId, onClose) {
-      const box = document.createElement("div");
-      box.className = "replyBox";
+<h2>Data Storage and Services</h2>
+<p>
+  Public support comments are stored using Firebase Firestore,
+  a cloud database service provided by Google.
+</p>
 
-      const ta = document.createElement("textarea");
-      ta.maxLength = 800;
-      ta.placeholder = "Write a reply…";
-      ta.style.minHeight = "90px";
+<p>
+  No personal user accounts are created, and no private user profiles are maintained.
+</p>
 
-      const row = document.createElement("div");
-      row.className = "row";
+<h2>Third-Party Services</h2>
+<p>
+  The app may rely on third-party services (such as music APIs or game infrastructure)
+  strictly to enable core gameplay features. These services are not used for tracking
+  individual users.
+</p>
 
-      const send = document.createElement("button");
-      send.textContent = "Post Reply";
+<h2>Children’s Privacy</h2>
+<p>
+  Guess The Song is intended for a general audience and does not knowingly collect
+  personal information from children.
+  If personal information is discovered in public support comments,
+  it may be removed.
+</p>
 
-      const cancel = document.createElement("button");
-      cancel.textContent = "Cancel";
-      cancel.className = "linkbtn";
-      cancel.type = "button";
+<h2>Your Choices</h2>
+<p>
+  You are not required to submit comments or feedback to use the app.
+  Participation in public support discussions is optional.
+</p>
 
-      const localErr = document.createElement("div");
-      localErr.className = "err";
+<h2>Changes to This Policy</h2>
+<p>
+  This Privacy Policy may be updated to reflect changes to the game or its services.
+  Any updates will be published on this page.
+</p>
 
-      send.addEventListener("click", async () => {
-        localErr.textContent = "";
-        const message = ta.value.trim();
-        if (!message) { localErr.textContent = "Please write a reply."; return; }
-        if (message.length > 800) { localErr.textContent = "Reply too long."; return; }
+<h2>Contact</h2>
+<p>
+  If you have questions about this Privacy Policy or the Guess The Song app,
+  please use the support page linked within the app.
+</p>
 
-        send.disabled = true;
-        try {
-          await addDoc(commentsCol, {
-            message,
-            createdAt: new Date(),
-            parentId
-          });
-          ta.value = "";
-          onClose();
-        } catch (e) {
-          localErr.textContent = "Failed to post reply.";
-        } finally {
-          send.disabled = false;
-        }
-      });
+<p class="small">
+  © Guess The Song (GTS)
+</p>
 
-      cancel.addEventListener("click", () => onClose());
-
-      row.appendChild(send);
-      row.appendChild(cancel);
-
-      box.appendChild(ta);
-      box.appendChild(row);
-      box.appendChild(localErr);
-
-      return box;
-    }
-
-    function renderThread(roots, repliesByParent) {
-      listEl.textContent = ""; // clear
-
-      for (const c of roots) {
-        const item = document.createElement("div");
-        item.className = "item";
-
-        item.appendChild(makeTextDiv(c.message));
-        item.appendChild(makeMetaDiv(c.createdAt));
-
-        const actions = document.createElement("div");
-        actions.className = "actions";
-
-        const replyBtn = document.createElement("button");
-        replyBtn.className = "linkbtn";
-        replyBtn.textContent = "Reply";
-
-        actions.appendChild(replyBtn);
-        item.appendChild(actions);
-
-        let openBox = null;
-
-        replyBtn.addEventListener("click", () => {
-          // toggle reply box
-          if (openBox) {
-            openBox.remove();
-            openBox = null;
-            replyBtn.textContent = "Reply";
-            return;
-          }
-          replyBtn.textContent = "Close Reply";
-          openBox = buildReplyBox(c.id, () => {
-            if (openBox) openBox.remove();
-            openBox = null;
-            replyBtn.textContent = "Reply";
-          });
-          item.appendChild(openBox);
-        });
-
-        const replies = repliesByParent.get(c.id) || [];
-        if (replies.length) {
-          const repliesWrap = document.createElement("div");
-          repliesWrap.className = "replies";
-
-          for (const r of replies) {
-            const rItem = document.createElement("div");
-            rItem.className = "replyItem";
-            rItem.appendChild(makeTextDiv(r.message));
-            rItem.appendChild(makeMetaDiv(r.createdAt));
-            repliesWrap.appendChild(rItem);
-          }
-
-          item.appendChild(repliesWrap);
-        }
-
-        listEl.appendChild(item);
-      }
-    }
-
-    async function postRootComment() {
-      errEl.textContent = "";
-      const message = msgEl.value.trim();
-      if (!message) { errEl.textContent = "Please write a comment."; return; }
-      if (message.length > 800) { errEl.textContent = "Comment too long."; return; }
-
-      postBtn.disabled = true;
-      try {
-        await addDoc(commentsCol, {
-          message,
-          createdAt: new Date(),
-          parentId: null
-        });
-        msgEl.value = "";
-      } catch (e) {
-        errEl.textContent = "Failed to post. Check your Firebase config / rules.";
-      } finally {
-        postBtn.disabled = false;
-      }
-    }
-
-    postBtn.addEventListener("click", postRootComment);
-
-    // Live updates: pull latest N docs and build threads client-side.
-    // Increase limit if you want more history.
-    const q = query(commentsCol, orderBy("createdAt", "desc"), limit(60));
-
-    onSnapshot(q, (snap) => {
-      const all = [];
-      snap.forEach(doc => {
-        const d = doc.data();
-        all.push({
-          id: doc.id,
-          message: d.message,
-          createdAt: d.createdAt,
-          parentId: d.parentId ?? null
-        });
-      });
-
-      // separate roots + replies
-      const roots = [];
-      const repliesByParent = new Map();
-
-      for (const c of all) {
-        if (!c.parentId) roots.push(c);
-        else {
-          if (!repliesByParent.has(c.parentId)) repliesByParent.set(c.parentId, []);
-          repliesByParent.get(c.parentId).push(c);
-        }
-      }
-
-      // sort roots oldest->newest (nicer reading) + replies oldest->newest
-      roots.sort((a,b) => (a.createdAt?.seconds ?? 0) - (b.createdAt?.seconds ?? 0));
-      for (const [k, arr] of repliesByParent.entries()) {
-        arr.sort((a,b) => (a.createdAt?.seconds ?? 0) - (b.createdAt?.seconds ?? 0));
-      }
-
-      renderThread(roots, repliesByParent);
-    });
-  </script>
 </body>
 </html>
